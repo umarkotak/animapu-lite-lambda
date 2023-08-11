@@ -14,7 +14,7 @@ func RenderResponse(geeCtx *Context, bodyPayload interface{}, err interface{}, s
 	geeCtx.SetHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	geeCtx.SetHeader(
 		"Access-Control-Allow-Headers",
-		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Animapu-User-Uid, X-Visitor-Id, X-From-Path",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Animapu-User-Uid, X-Visitor-Id, X-From-Path, Server, X-Vercel-Cache, X-Vercel-Id",
 	)
 	geeCtx.JSON(status, H{
 		"success": success,
