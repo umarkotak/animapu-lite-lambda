@@ -5,10 +5,13 @@ import (
 
 	. "github.com/tbxark/g4vercel"
 	"github.com/umarkotak/animapu-lite-lambda/handlers"
+	"github.com/umarkotak/animapu-lite-lambda/utils"
 )
 
+// https://animapu-lite-lambda.vercel.app/
 func Handler(w http.ResponseWriter, r *http.Request) {
 	server := New()
+	server.Use(CORSMiddleware())
 
 	server.GET("/", handlers.GetHealth)
 
@@ -18,4 +21,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	server.GET("/mangas/:manga_source/search", handlers.GetHealth)
 
 	server.Handle(w, r)
+}
+
+func CORSMiddleware() func(c *Context) {
+	return func(c *Context) {
+		if c.Req.Method == "OPTIONS" {
+			utils.RenderResponse(c, nil, nil, 200)
+			return
+		}
+		c.Next()
+	}
 }
