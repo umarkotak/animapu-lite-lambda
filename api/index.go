@@ -10,7 +10,7 @@ import (
 
 // https://animapu-lite-lambda.vercel.app/
 func Handler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "options" {
+	if r.Method == "OPTIONS" {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{})
 		return
