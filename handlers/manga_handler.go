@@ -26,3 +26,38 @@ func GetLatestMangas(c *Context) {
 	c.Writer.Header().Set("Res-From-Cache", fmt.Sprint(meta.FromCache))
 	utils.RenderResponse(c, mangas, nil, 200)
 }
+
+func GetMangaDetail(c *Context) {
+	queryParams := models.QueryParams{
+		Source:            c.Param("manga_source"),
+		SourceID:          c.Param("manga_id"),
+		SecondarySourceID: c.Req.URL.Query().Get("secondary_source_id"),
+	}
+
+	manga, meta, err := engines.GetMangaDetail(c.Req.Context(), queryParams)
+	if err != nil {
+		utils.RenderResponse(c, nil, err, 422)
+		return
+	}
+
+	c.Writer.Header().Set("Res-From-Cache", fmt.Sprintf("%v", meta.FromCache))
+	utils.RenderResponse(c, manga, nil, 200)
+}
+
+func GetMangaChapter(c *Context) {
+	queryParams := models.QueryParams{
+		Source:            c.Param("manga_source"),
+		SourceID:          c.Param("manga_id"),
+		SecondarySourceID: c.Req.URL.Query().Get("secondary_source_id"),
+		ChapterID:         c.Param("chapter_id"),
+	}
+
+	chapter, meta, err := engines.GetMangaChapter(c.Req.Context(), queryParams)
+	if err != nil {
+		utils.RenderResponse(c, nil, err, 422)
+		return
+	}
+
+	c.Writer.Header().Set("Res-From-Cache", fmt.Sprintf("%v", meta.FromCache))
+	utils.RenderResponse(c, chapter, nil, 200)
+}
