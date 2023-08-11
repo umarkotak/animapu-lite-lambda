@@ -1,17 +1,22 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	. "github.com/tbxark/g4vercel"
 	"github.com/umarkotak/animapu-lite-lambda/handlers"
-	"github.com/umarkotak/animapu-lite-lambda/utils"
 )
 
 // https://animapu-lite-lambda.vercel.app/
 func Handler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "options" {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{})
+		return
+	}
+
 	server := New()
-	server.Use(CORSMiddleware)
 
 	server.GET("/", handlers.GetHealth)
 
@@ -21,12 +26,4 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	server.GET("/mangas/:manga_source/search", handlers.GetHealth)
 
 	server.Handle(w, r)
-}
-
-func CORSMiddleware(c *Context) {
-	if c.Req.Method == "OPTIONS" {
-		utils.RenderResponse(c, map[string]interface{}{}, nil, 200)
-		return
-	}
-	c.Next()
 }
