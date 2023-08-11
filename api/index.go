@@ -11,7 +11,7 @@ import (
 // https://animapu-lite-lambda.vercel.app/
 func Handler(w http.ResponseWriter, r *http.Request) {
 	server := New()
-	server.Use(CORSMiddleware())
+	server.Use(CORSMiddleware)
 
 	server.GET("/", handlers.GetHealth)
 
@@ -23,12 +23,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	server.Handle(w, r)
 }
 
-func CORSMiddleware() func(c *Context) {
-	return func(c *Context) {
-		if c.Req.Method == "OPTIONS" {
-			utils.RenderResponse(c, nil, nil, 200)
-			return
-		}
-		c.Next()
+func CORSMiddleware(c *Context) {
+	if c.Req.Method == "OPTIONS" {
+		utils.RenderResponse(c, map[string]interface{}{}, nil, 200)
+		return
 	}
+	c.Next()
 }
