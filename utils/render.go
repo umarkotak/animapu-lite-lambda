@@ -16,9 +16,15 @@ func RenderResponse(geeCtx *Context, bodyPayload interface{}, err error, status 
 		"Access-Control-Allow-Headers",
 		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Animapu-User-Uid, X-Visitor-Id, X-From-Path, Server, X-Vercel-Cache, X-Vercel-Id",
 	)
+
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+
 	geeCtx.JSON(status, H{
 		"success": success,
 		"data":    bodyPayload,
-		"error":   err.Error(),
+		"error":   errMsg,
 	})
 }
