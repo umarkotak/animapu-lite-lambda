@@ -4,7 +4,7 @@ import (
 	. "github.com/tbxark/g4vercel"
 )
 
-func RenderResponse(geeCtx *Context, bodyPayload interface{}, err interface{}, status int) {
+func RenderResponse(geeCtx *Context, bodyPayload interface{}, err error, status int) {
 	success := true
 	if status != 200 {
 		success = false
@@ -19,6 +19,6 @@ func RenderResponse(geeCtx *Context, bodyPayload interface{}, err interface{}, s
 	geeCtx.JSON(status, H{
 		"success": success,
 		"data":    bodyPayload,
-		"error":   err,
+		"error":   err.Error(),
 	})
 }
