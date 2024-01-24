@@ -13,7 +13,7 @@ type Config struct {
 
 var (
 	config = Config{
-		AnimapuOnlineHost: "https://animapu.site",
+		AnimapuOnlineHost: "https://api.shadow-animapu-1.site",
 		Rd: fmt.Sprintf(
 			"red%s://%s:%s@%s:%s",
 			"is", "default", "278392d5f3384fa3b637cbdb80b9b632", "square-teal-47349.kv.vercel-storage.com", "47349",

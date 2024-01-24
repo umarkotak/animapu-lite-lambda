@@ -4,12 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
 	. "github.com/tbxark/g4vercel"
 	"github.com/umarkotak/animapu-lite-lambda/handlers"
+	"github.com/umarkotak/animapu-lite-lambda/utils"
 )
 
 // https://animapu-lite-lambda.vercel.app/
 func Handler(w http.ResponseWriter, r *http.Request) {
+	logrus.SetFormatter(&utils.Formatter{})
+
 	if r.Method == "OPTIONS" {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")

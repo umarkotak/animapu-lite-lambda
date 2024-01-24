@@ -6,17 +6,21 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gocolly/colly"
+	"github.com/sirupsen/logrus"
 	"github.com/umarkotak/animapu-lite-lambda/config"
 	"github.com/umarkotak/animapu-lite-lambda/models"
 )
 
-type Mangabat struct{}
+type Mangabat struct {
+	Host string
+}
 
 func NewMangabat() Mangabat {
-	return Mangabat{}
+	return Mangabat{
+		Host: "https://h.mangabat.com",
+	}
 }
 
 func (m *Mangabat) GetHome(ctx context.Context, queryParams models.QueryParams) ([]models.Manga, error) {
@@ -27,7 +31,15 @@ func (m *Mangabat) GetHome(ctx context.Context, queryParams models.QueryParams) 
 	}
 
 	c := colly.NewCollector()
-	c.SetRequestTimeout(60 * time.Second)
+	c.SetRequestTimeout(config.Get().CollyTimeout)
+	// t := &http.Transport{
+	// 	Dial: (&net.Dialer{
+	// 		Timeout:   60 * time.Second,
+	// 		KeepAlive: 30 * time.Second,
+	// 	}).Dial,
+	// 	TLSHandshakeTimeout: 60 * time.Second,
+	// }
+	// c.WithTransport(t)
 
 	c.OnHTML("body div.body-site div.container.container-main div.container-main-left div.panel-list-story .list-story-item", func(e *colly.HTMLElement) {
 		sourceID := strings.Replace(e.ChildAttr("div > h3 > a", "href"), "https://read.mangabat.com/", "", -1)
@@ -77,10 +89,12 @@ func (m *Mangabat) GetHome(ctx context.Context, queryParams models.QueryParams) 
 		})
 	})
 
-	err := c.Visit(fmt.Sprintf("https://m.mangabat.com/manga-list-all/%v", queryParams.Page))
+	err := c.Visit(fmt.Sprintf("%s/manga-list-all/%v", m.Host, queryParams.Page))
 	if err != nil {
+		logrus.WithContext(ctx).Error(err)
 		return mangas, err
 	}
+	c.Wait()
 
 	return mangas, nil
 }
@@ -95,7 +109,7 @@ func (m *Mangabat) GetDetail(ctx context.Context, queryParams models.QueryParams
 		CoverImages: []models.CoverImage{{ImageUrls: []string{""}}},
 	}
 	c := colly.NewCollector()
-	c.SetRequestTimeout(60 * time.Second)
+	c.SetRequestTimeout(config.Get().CollyTimeout)
 
 	c.OnHTML("body > div.body-site > div.container.container-main > div.container-main-left > div.panel-story-info > div.story-info-right > h1", func(e *colly.HTMLElement) {
 		manga.Title = e.Text
@@ -138,20 +152,25 @@ func (m *Mangabat) GetDetail(ctx context.Context, queryParams models.QueryParams
 	})
 
 	err := c.Visit(fmt.Sprintf("https://m.mangabat.com/%v", queryParams.SourceID))
+	c.Wait()
 
 	if manga.Title == "" {
 		err = c.Visit(fmt.Sprintf("https://read.mangabat.com/%v", queryParams.SourceID))
+		c.Wait()
 	}
 
 	if manga.Title == "" {
 		err = c.Visit(fmt.Sprintf("https://readmangabat.com/%v", queryParams.SourceID))
+		c.Wait()
 	}
 
 	if manga.Title == "" {
-		err = c.Visit(fmt.Sprintf("https://h.mangabat.com/%v", queryParams.SourceID))
+		err = c.Visit(fmt.Sprintf("%s/%v", m.Host, queryParams.SourceID))
+		c.Wait()
 	}
 
 	if err != nil {
+		logrus.WithContext(ctx).Error(err)
 		return manga, err
 	}
 
@@ -164,7 +183,7 @@ func (m *Mangabat) GetSearch(ctx context.Context, queryParams models.QueryParams
 	mangas := []models.Manga{}
 
 	c := colly.NewCollector()
-	c.SetRequestTimeout(60 * time.Second)
+	c.SetRequestTimeout(config.Get().CollyTimeout)
 
 	c.OnHTML("body > div.body-site > div.container.container-main > div.container-main-left > div.panel-list-story > div", func(e *colly.HTMLElement) {
 		detailUrl := e.ChildAttr("a.item-img", "href")
@@ -205,8 +224,10 @@ func (m *Mangabat) GetSearch(ctx context.Context, queryParams models.QueryParams
 	})
 
 	query := strings.Replace(queryParams.Title, " ", "_", -1)
-	err := c.Visit(fmt.Sprintf("https://m.mangabat.com/search/manga/%v", query))
+	err := c.Visit(fmt.Sprintf("%s/search/manga/%v", m.Host, query))
+	c.Wait()
 	if err != nil {
+		logrus.WithContext(ctx).Error(err)
 		return mangas, err
 	}
 
@@ -267,6 +288,7 @@ func (m *Mangabat) GetChapter(ctx context.Context, queryParams models.QueryParam
 			},
 		)
 		if err != nil {
+			logrus.WithContext(ctx).Error(err)
 			continue
 		}
 		if len(chapter.ChapterImages) > 0 {
@@ -276,6 +298,7 @@ func (m *Mangabat) GetChapter(ctx context.Context, queryParams models.QueryParam
 	}
 
 	if err != nil {
+		logrus.WithContext(ctx).Error(err)
 		return chapter, err
 	}
 
