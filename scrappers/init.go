@@ -1,4 +1,4 @@
-package engines
+package scrappers
 
 import (
 	"context"

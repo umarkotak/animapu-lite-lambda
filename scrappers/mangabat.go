@@ -1,4 +1,4 @@
-package engines
+package scrappers
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly"
+	"github.com/umarkotak/animapu-lite-lambda/config"
 	"github.com/umarkotak/animapu-lite-lambda/models"
 )
 
@@ -230,8 +231,8 @@ func (m *Mangabat) GetChapter(ctx context.Context, queryParams models.QueryParam
 		chapter.ChapterImages = append(chapter.ChapterImages, models.ChapterImage{
 			Index: 0,
 			ImageUrls: []string{
-				fmt.Sprintf("%v/image_proxy?referer=%v&target=%v", engineCofig.AnimapuOnlineHost, "https://m.mangabat.com/", e.Attr("src")),
-				fmt.Sprintf("%v/mangas/mangabat/image_proxy/%v", engineCofig.AnimapuOnlineHost, e.Attr("src")),
+				fmt.Sprintf("%v/image_proxy?referer=%v&target=%v", config.Get().AnimapuOnlineHost, "https://m.mangabat.com/", e.Attr("src")),
+				fmt.Sprintf("%v/mangas/mangabat/image_proxy/%v", config.Get().AnimapuOnlineHost, e.Attr("src")),
 				e.Attr("src"),
 			},
 		})

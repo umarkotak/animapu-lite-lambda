@@ -2,14 +2,19 @@ package engines
 
 import (
 	"fmt"
+
+	"github.com/umarkotak/animapu-lite-lambda/scrappers"
 )
 
-func mangaScrapperGenerator(mangaSource string) (MangaScrapper, error) {
-	var mangaScrapper MangaScrapper
+func mangaScrapperGenerator(mangaSource string) (scrappers.MangaScrapper, error) {
+	var mangaScrapper scrappers.MangaScrapper
 
 	switch mangaSource {
 	case "mangabat":
-		mangaScrapper := NewMangabat()
+		mangaScrapper := scrappers.NewMangabat()
+		return &mangaScrapper, nil
+	case "mangasee":
+		mangaScrapper := scrappers.NewMangasee()
 		return &mangaScrapper, nil
 	}
 
