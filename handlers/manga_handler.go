@@ -61,3 +61,21 @@ func GetMangaChapter(c *Context) {
 	c.Writer.Header().Set("Res-From-Cache", fmt.Sprintf("%v", meta.FromCache))
 	utils.RenderResponse(c, chapter, nil, 200)
 }
+
+func GetSearchManga(c *Context) {
+	page, _ := strconv.ParseInt(c.Req.URL.Query().Get("page"), 10, 64)
+	queryParams := models.QueryParams{
+		Source: c.Param("manga_source"),
+		Page:   page,
+		Title:  c.Req.URL.Query().Get("title"),
+	}
+
+	mangas, meta, err := engines.GetSearchManga(c.Req.Context(), queryParams)
+	if err != nil {
+		utils.RenderResponse(c, nil, nil, 422)
+		return
+	}
+
+	c.Writer.Header().Set("Res-From-Cache", fmt.Sprintf("%v", meta.FromCache))
+	utils.RenderResponse(c, mangas, nil, 200)
+}
